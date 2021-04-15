@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CHAT</title>
+</head>
+<body>
+    <h1> CHAT </h1>
+
+    <form onsubmit="return addMessage (this)">
+        <input type="text" autocomplete="off" id="username" placeholder="Your mail"><br><br>
+        <input type="text" autocomplete="off" id="name" placeholder="Name"><br><br>
+        <input type="text" autocomplete="off" id="surname" placeholder="Surname"><br><br>
+        <input type="text" autocomplete="off" id="alias" placeholder="Alias"><br><br>
+        <input type="number" autocomplete="off" id="age" placeholder="Your age"><br><br>
+        <input type="text" autocomplete="off" id="avatar" placeholder="Avatar"><br><br>
+        <input type="text" autocomplete="off" id="texto" placeholder="Tell us something..."><br><br>
+        <input type="submit" value="Send">
+    </form>
+    <div id="messages"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('messages', function(data){
+            console.log(data);
+        })
+
+        function render (data) {
+            let html = data.map(function(elem, index){
+                return(`<div>
+                    <strong>${elem.alias}</strong>:
+                    <em>${elem.date}</em>
+                    <em>${elem.text}</em></div>`)
+            }).join(" ");
+            document.getElementById('messages').innerHTML = html;
+        }
+
+        socket.on('messages', (data) => {
+            render (data);
+        });
+
+        const date = new Date();
+        let fecha = (`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}---${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}: `);
+        
+
+        function addMessage (e) {
+            let all = {
+                id: document.getElementById('username').value,
+                alias: document.getElementById('alias').value,
+                age: document.getElementById('age').value,
+                avatar: document.getElementById('avatar').value,
+                date: fecha,
+                text: document.getElementById('texto').value,
+            };
+            socket.emit('all-messages', all);
+            return false;
+        }  
+
+    </script>
+
+</body>
+</html>
